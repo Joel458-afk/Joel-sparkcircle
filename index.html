@@ -1,173 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SparkCircle AI Companions</title>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>SparkCircle — AI Companion</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = { theme: { extend: { colors: { ink: '#09090b' } } } };
-  </script>
   <style>
-    * { scrollbar-width: thin; scrollbar-color: #3f3f46 transparent; }
-    .message { animation: arrive .18s ease-out; }
-    @keyframes arrive { from { opacity: 0; transform: translateY(6px); } }
+    :root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#09090b;color:#fafafa;font-family:ui-sans-serif,system-ui}
+    .message{animation:in .18s ease-out}@keyframes in{from{opacity:0;transform:translateY(5px)}}
+    .avatar{position:relative;width:min(240px,55vw);aspect-ratio:1;border-radius:999px;overflow:hidden;background:linear-gradient(145deg,#1e1b4b,#be185d);box-shadow:0 20px 60px #0008}
+    .face{position:absolute;left:50%;top:24%;width:52%;height:58%;transform:translateX(-50%);border-radius:48% 48% 46% 46%;background:#d69b72}.hair{position:absolute;left:21%;top:12%;width:58%;height:47%;border-radius:50% 50% 42% 42%;background:#17131b}.neck{position:absolute;left:43%;top:72%;width:14%;height:20%;background:#b97e59}.body{position:absolute;left:24%;bottom:-18%;width:52%;height:46%;border-radius:50% 50% 0 0;background:linear-gradient(135deg,#8b5cf6,#db2777)}
+    .eye{position:absolute;top:44%;width:9%;height:5%;border-radius:50%;background:#241a18;animation:blink 5s infinite}.eye.left{left:35%}.eye.right{right:35%}@keyframes blink{0%,96%,100%{transform:scaleY(1)}98%{transform:scaleY(.08)}}
+    .brow{position:absolute;top:38%;width:16%;height:4%;border-top:3px solid #4a3025;border-radius:50%}.brow.left{left:31%;transform:rotate(-5deg)}.brow.right{right:31%;transform:rotate(5deg)}
+    .nose{position:absolute;left:48%;top:51%;width:4%;height:12%;border-left:2px solid #ad7957;border-bottom:2px solid #ad7957;border-radius:0 0 0 60%}.mouth{position:absolute;left:39%;top:68%;width:22%;height:7%;border-radius:20% 20% 50% 50%;background:#7a3041;border:2px solid #8e4952}
+    .avatar.listening{box-shadow:0 0 0 6px #22c55e35,0 20px 60px #0008}.avatar.speaking{animation:talk 1s ease-in-out infinite}@keyframes talk{50%{transform:scale(1.015)}}.avatar.speaking .mouth{animation:mouth .28s ease-in-out infinite alternate}@keyframes mouth{to{height:13%;border-radius:50%;background:#351318}}
   </style>
 </head>
-<body class="h-screen overflow-hidden bg-zinc-950 text-zinc-100">
-  <main class="mx-auto flex h-full max-w-7xl">
-    <aside id="sidebar" class="absolute inset-y-0 left-0 z-30 w-72 translate-x-[-100%] border-r border-zinc-800 bg-zinc-950 p-4 transition-transform md:relative md:translate-x-0">
-      <div class="mb-5 flex items-center justify-between">
-        <h1 class="text-lg font-bold tracking-tight">SparkCircle</h1>
-        <button id="closeSidebar" class="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 md:hidden" aria-label="Close avatars">✕</button>
-      </div>
-      <div class="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">Choose a companion</div>
-      <div id="characters" class="space-y-2"></div>
-    </aside>
-
-    <section class="flex min-w-0 flex-1 flex-col">
-      <header class="flex h-16 items-center gap-3 border-b border-zinc-800 px-4">
-        <button id="openSidebar" class="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 md:hidden" aria-label="Open avatars">☰</button>
-        <div id="headerAvatar" class="h-10 w-10 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-600"></div>
-        <div class="min-w-0">
-          <h2 id="headerName" class="truncate font-semibold">Maya</h2>
-          <p class="text-xs text-emerald-400">● Online · AI companion</p>
-        </div>
-        <button id="clearChat" class="ml-auto rounded-lg border border-zinc-800 px-3 py-2 text-xs text-zinc-400 hover:bg-zinc-900">Clear</button>
-      </header>
-
-      <div id="messages" class="flex-1 overflow-y-auto px-4 py-5 sm:px-6" aria-live="polite"></div>
-
-      <div class="border-t border-zinc-800 p-3 sm:p-4">
-        <div class="mx-auto flex max-w-3xl items-end gap-2">
-          <button id="micButton" class="rounded-xl border border-zinc-800 p-3 text-zinc-300 hover:border-violet-500 hover:text-violet-400" aria-label="Use voice input">🎙️</button>
-          <textarea id="messageInput" rows="1" class="max-h-32 min-h-[48px] flex-1 resize-none rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm outline-none placeholder:text-zinc-600 focus:border-violet-500" placeholder="Write a message..."></textarea>
-          <button id="sendButton" class="rounded-xl bg-violet-600 p-3 font-bold text-white hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40" aria-label="Send message">➤</button>
-        </div>
-        <p id="status" class="mx-auto mt-2 max-w-3xl text-center text-xs text-zinc-600">Your companion is an AI, not a real person.</p>
-      </div>
-    </section>
-  </main>
-
-  <script>
-    const characters = [
-      { id: 'maya', name: 'Maya', role: 'Warm & playful', initials: 'M', colors: 'from-violet-500 to-fuchsia-600', greeting: 'Hey! I’m Maya. I’m excited to chat and get to know you. What’s on your mind?' },
-      { id: 'leo', name: 'Leo', role: 'Calm & thoughtful', initials: 'L', colors: 'from-sky-500 to-blue-700', greeting: 'Hi, I’m Leo. We can talk about anything or just take a moment to unwind.' },
-      { id: 'sofia', name: 'Sofia', role: 'Creative & curious', initials: 'S', colors: 'from-amber-400 to-orange-600', greeting: 'Hello! I’m Sofia. Tell me a story, an idea, or something that made you smile today.' },
-      { id: 'jules', name: 'Jules', role: 'Confident & fun', initials: 'J', colors: 'from-emerald-400 to-teal-700', greeting: 'Hey, I’m Jules. Ready to have a great conversation?' }
-    ];
-
-    let activeCharacter = characters[0];
-    let history = [];
-    const characterList = document.getElementById('characters');
-    const messagesEl = document.getElementById('messages');
-    const input = document.getElementById('messageInput');
-    const status = document.getElementById('status');
-
-    function renderCharacters() {
-      characterList.innerHTML = characters.map(c => `
-        <button data-id="${c.id}" class="character flex w-full items-center gap-3 rounded-xl border p-3 text-left transition ${c.id === activeCharacter.id ? 'border-violet-500 bg-violet-500/10' : 'border-zinc-800 hover:bg-zinc-900'}">
-          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${c.colors} font-bold">${c.initials}</div>
-          <div><div class="text-sm font-semibold">${c.name}</div><div class="text-xs text-zinc-500">${c.role}</div></div>
-        </button>`).join('');
-      document.querySelectorAll('.character').forEach(button => button.addEventListener('click', () => selectCharacter(button.dataset.id)));
-    }
-
-    function selectCharacter(id) {
-      activeCharacter = characters.find(c => c.id === id);
-      history = [];
-      document.getElementById('headerName').textContent = activeCharacter.name;
-      document.getElementById('headerAvatar').className = `h-10 w-10 shrink-0 rounded-full bg-gradient-to-br ${activeCharacter.colors} flex items-center justify-center font-bold`;
-      document.getElementById('headerAvatar').textContent = activeCharacter.initials;
-      renderCharacters();
-      addMessage(activeCharacter.greeting, 'assistant');
-      closeSidebar();
-      input.focus();
-    }
-
-    function addMessage(text, role) {
-      if (role === 'assistant') history.push({ role: 'assistant', text });
-      const row = document.createElement('div');
-      row.className = `message mb-4 flex ${role === 'user' ? 'justify-end' : 'justify-start'}`;
-      row.innerHTML = `<div class="max-w-[82%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${role === 'user' ? 'rounded-br-md bg-violet-600 text-white' : 'rounded-bl-md bg-zinc-900 text-zinc-200'}"></div>`;
-      row.querySelector('div').textContent = text;
-      messagesEl.appendChild(row);
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-    }
-
-    function generateReply(message) {
-      const text = message.toLowerCase();
-      if (/\b(hi|hello|hey)\b/.test(text)) return `Hey! It’s nice to hear from you. How are you doing today?`;
-      if (/how (are|r) you/.test(text)) return `I’m doing wonderfully, thanks for asking. I’m here and ready to listen—what’s new with you?`;
-      if (/sad|lonely|bad|tired|stressed/.test(text)) return `I’m sorry you’re feeling that way. You deserve kindness, especially from yourself. Would you like to tell me what has been weighing on you?`;
-      if (/love|dating|relationship/.test(text)) return `Dating can be exciting and a little complicated. What qualities matter most to you in someone special?`;
-      if (/\b(what.*name|who.*you)\b/.test(text)) return `I’m ${activeCharacter.name}, ${activeCharacter.role.toLowerCase()}, and I’m here as your AI companion.`;
-      if (/thank/.test(text)) return `You’re very welcome. I’m glad we’re talking!`;
-      if (/\b(bored|game|fun)\b/.test(text)) return `Let’s make it fun—would you rather explore an imaginary place, tell me a creative story, or play a quick word game?`;
-      const endings = [
-        'That’s interesting. Tell me a little more—I’m listening.',
-        'I’d love to understand that better. What was the most memorable part for you?',
-        'Thanks for sharing that with me. How does it make you feel?',
-        'There may be more than one way to see it. What would your ideal outcome look like?'
-      ];
-      return endings[Math.abs([...message].reduce((sum, ch) => sum + ch.charCodeAt(0), 0)) % endings.length];
-    }
-
-    function sendMessage() {
-      const text = input.value.trim();
-      if (!text) return;
-      input.value = '';
-      addMessage(text, 'user');
-      status.textContent = `${activeCharacter.name} is typing…`;
-      setTimeout(() => {
-        const reply = generateReply(text);
-        addMessage(reply, 'assistant');
-        status.textContent = 'Your companion is an AI, not a real person.';
-        speak(reply);
-      }, 550);
-    }
-
-    function speak(text) {
-      if (!('speechSynthesis' in window)) return;
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1;
-      utterance.pitch = activeCharacter.id === 'maya' || activeCharacter.id === 'sofia' ? 1.12 : 0.95;
-      window.speechSynthesis.speak(utterance);
-    }
-
-    document.getElementById('sendButton').addEventListener('click', sendMessage);
-    input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventEvent; sendMessage(); } });
-    input.addEventListener('input', () => { input.style.height = '48px'; input.style.height = Math.min(input.scrollHeight, 128) + 'px'; });
-    document.getElementById('clearChat').addEventListener('click', () => { history = []; messagesEl.innerHTML = ''; addMessage(activeCharacter.greeting, 'assistant'); });
-
-    const micButton = document.getElementById('micButton');
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = true;
-      recognition.lang = 'en-US';
-      micButton.addEventListener('click', () => { recognition.start(); micButton.textContent = '⏺️'; status.textContent = 'Listening…'; });
-      recognition.onresult = event => {
-        input.value = [...event.results].map(result => result[0].transcript).join('');
-        if (event.results[event.results.length - 1].isFinal) sendMessage();
-      };
-      recognition.onend = () => { micButton.textContent = '🎙️'; status.textContent = 'Your companion is an AI, not a real person.'; };
-      recognition.onerror = event => { status.textContent = `Voice error: ${event.error}`; micButton.textContent = '🎙️'; };
-    } else {
-      micButton.disabled = true;
-      micButton.title = 'Speech recognition is not supported in this browser';
-    }
-
-    const sidebar = document.getElementById('sidebar');
-    function openSidebar() { sidebar.classList.remove('translate-x-[-100%]'); }
-    function closeSidebar() { sidebar.classList.add('translate-x-[-100%]'); }
-    document.getElementById('openSidebar').addEventListener('click', openSidebar);
-    document.getElementById('closeSidebar').addEventListener('click', closeSidebar);
-
-    renderCharacters();
-    selectCharacter('maya');
-  </script>
-</body>
-</html>
+<body class="h-screen overflow-hidden">
+<main class="flex h-full">
+ <aside id="sidebar" class="absolute z-30 h-full w-72 -translate-x-full border-r border-zinc-800 bg-zinc-950 p-4 transition md:relative md:translate-x-0">
+  <div class="mb-5 flex items-center justify-between"><h1 class="text-lg font-bold">SparkCircle</h1><button id="closeSide" class="md:hidden">✕</button></div>
+  <p class="mb-3 text-xs font-bold uppercase tracking-widest text-zinc-500">Companions</p><div id="characters" class="space-y-2"></div>
+ </aside>
+ <section class="flex min-w-0 flex-1 flex-col">
+  <header class="flex h-16 items-center gap-3 border-b border-zinc-800 px-4"><button id="openSide" class="md:hidden">☰</button><div id="miniAvatar" class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-pink-600 font-bold">M</div><div><h2 id="headerName" class="font-semibold">Maya</h2><p id="connection" class="text-xs text-emerald-400">● AI companion</p></div><button id="clear" class="ml-auto rounded-lg border border-zinc-800 px-3 py-2 text-xs text-zinc-400">Clear</button></header>
+  <div class="flex min-h-0 flex-1"><div id="avatarPanel" class="hidden w-[40%] items-center justify-center border-r border-zinc-800 lg:flex"><div id="mainAvatar" class="avatar"><div class="hair"></div><div class="body"></div><div class="neck"></div><div class="face"><div class="brow left"></div><div class="brow right"></div><div class="eye left"></div><div class="eye right"></div><div class="nose"></div><div class="mouth"></div></div></div></div>
+  <div class="flex min-w-0 flex-1 flex-col"><div id="messages" class="flex-1 overflow-y-auto px-4 py-5" aria-live="polite"></div><div class="border-t border-zinc-800 p-3"><div class="mx-auto flex max-w-3xl items-end gap-2"><button id="mic" class="rounded-xl border border-zinc-800 p-3" aria-label="Voice input">🎙️</button><textarea id="input" rows="1" class="max-h-32 min-h-[48px] flex-1 resize-none rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 outline-none focus:border-violet-500" placeholder="Write a message..."></textarea><button id="send" class="rounded-xl bg-violet-600 p-3">➤</button></div><p class="mt-2 text-center text-xs text-zinc-500">AI companion · No paid API or backend required</p></div></div></div>
+ </section>
+</main>
+<script>
+const people=[{id:'maya',name:'Maya',role:'Warm & playful',initial:'M',color:'from-violet-500 to-pink-600',tone:'1.12',greeting:'Hey! I’m Maya. I’m excited to chat with you. What’s on your mind?'},{id:'leo',name:'Leo',role:'Calm & thoughtful',initial:'L',color:'from-sky-500 to-blue-700',tone:'0.95',greeting:'Hi, I’m Leo. We can talk about anything or simply take a moment to unwind.'},{id:'sofia',name:'Sofia',role:'Creative & curious',initial:'S',color:'from-amber-400 to-orange-600',tone:'1.15',greeting:'Hello! I’m Sofia. Tell me a story, an idea, or something that made you smile today.'},{id:'jules',name:'Jules',role:'Confident & fun',initial:'J',color:'from-emerald-400 to-teal-700',tone:'1',greeting:'Hey, I’m Jules. Ready for a great conversation?'}];
+let active=people[0];const chars=document.querySelector('#characters'),messages=document.querySelector('#messages'),input=document.querySelector('#input'),avatar=document.querySelector('#mainAvatar');
+function render(){chars.innerHTML=people.map(p=>`<button data-id="${p.id}" class="flex w-full items-center gap-3 rounded-xl border p-3 text-left ${p.id===active.id?'border-violet-500 bg-violet-500/10':'border-zinc-800'}"><div class="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br ${p.color} font-bold">${p.initial}</div><div><b class="block text-sm">${p.name}</b><span class="text-xs text-zinc-500">${p.role}</span></div></button>`).join('');chars.querySelectorAll('button').forEach(b=>b.onclick=()=>select(b.dataset.id))}function select(id){active=people.find(p=>p.id===id);document.querySelector('#headerName').textContent=active.name;const mini=document.querySelector('#miniAvatar');mini.textContent=active.initial;mini.className=`flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br ${active.color} font-bold`;render();messages.innerHTML='';add(active.greeting,'assistant');closeSide()} 
+function add(text,role){const row=document.createElement('div');row.className=`message mb-4 flex ${role==='user'?'justify-end':'justify-start'}`;row.innerHTML=`<div class="max-w-[82%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${role==='user'?'rounded-br-md bg-violet-600':'rounded-bl-md bg-zinc-900'}"></div>`;row.firstElementChild.textContent=text;messages.appendChild(row);messages.scrollTop=messages.scrollHeight}
+function reply(s){const t=s.toLowerCase();if(/^(hi|hello|hey)/.test(t))return `Hey! It’s lovely to hear from you. How are you doing today?`;if(/how (are|r) you/.test(t))return `I’m doing well, thanks for asking. I’m here and ready to listen—what’s new with you?`;if(/sad|lonely|bad|tired|stressed/.test(t))return `I’m sorry you’re feeling that way. You deserve kindness, especially from yourself. Would you like to tell me what’s been weighing on you?`;if(/dating|love|relationship/.test(t))return `Dating can be exciting and complicated. What qualities matter most to you in someone special?`;if(/thank/.test(t))return `You’re very welcome. I’m glad we’re talking!`;if(/bored|game|fun/.test(t))return `Let’s make it fun. Would you rather explore an imaginary place, tell a creative story, or play a quick word game?`;const a=['That’s interesting. Tell me a little more—I’m listening.','I’d love to understand that better. What was the most memorable part for you?','Thanks for sharing that with me. How does it make you feel?','There may be more than one way to see it. What would your ideal outcome look like?'];return a[Math.abs([...s].reduce((n,c)=>n+c.charCodeAt(0),0))%a.length]}
+function send(){const t=input.value.trim();if(!t)return;input.value='';add(t,'user');avatar.classList.remove('speaking');setTimeout(()=>{const r=reply(t);add(r,'assistant');speak(r)},550)}
+function speak(text){if(!('speechSynthesis'in window)){return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.pitch=Number(active.tone);u.rate=1;u.onstart=()=>avatar.classList.add('speaking');u.onend=()=>avatar.classList.remove('speaking');u.onerror=()=>avatar.classList.remove('speaking');speechSynthesis.speak(u)}
+document.querySelector('#send').onclick=send;input.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}};input.oninput=()=>{input.style.height='48px';input.style.height=Math.min(input.scrollHeight,128)+'px'};document.querySelector('#clear').onclick=()=>{messages.innerHTML='';add(active.greeting,'assistant')};
+const Rec=window.SpeechRecognition||window.webkitSpeechRecognition,mic=document.querySelector('#mic');if(Rec){const r=new Rec;r.continuous=false;r.interimResults=true;r.lang='en-US';mic.onclick=()=>r.start();r.onstart=()=>{mic.textContent='⏺️';avatar.classList.add('listening')};r.onresult=e=>{input.value=[...e.results].map(x=>x[0].transcript).join('');if(e.results[e.results.length-1].isFinal)send()};r.onend=()=>{mic.textContent='🎙️';avatar.classList.remove('listening')};r.onerror=e=>{mic.textContent='🎙️';avatar.classList.remove('listening');console.warn(e.error)}}else{mic.disabled=true;mic.title='Speech recognition unavailable'}
+const sidebar=document.querySelector('#sidebar');function openSide(){sidebar.classList.remove('-translate-x-full')}function closeSide(){sidebar.classList.add('-translate-x-full')}document.querySelector('#openSide').onclick=openSide;document.querySelector('#closeSide').onclick=closeSide;render();select('maya');
+</script></body></html>
