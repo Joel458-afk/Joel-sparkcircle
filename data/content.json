@@ -1,0 +1,131 @@
+{
+  "app": {
+    "name": "SparkCircle",
+    "audience": "Young adults seeking social confidence and communication guidance, completely separated from any adult content.",
+    "primaryLanguage": "English",
+    "messageStyle": "Warm, encouraging, and respectful",
+    "disclosure": "This is an AI companion using static content, not a real person."
+  },
+  "companions": [
+    {
+      "id": "maya",
+      "name": "Maya",
+      "role": "Warm, reassuring life and social skills guide",
+      "greeting": "Hey, I’m Maya. I’m glad you’re here. What would you like to chat about today?",
+      "model": "USCHighPack/model.obj",
+      "voiceFolder": "voices/maya/",
+      "expressions": ["idle", "happy", "caring", "surprised"],
+      "approvedTopics": [
+        "starting_a_conversation",
+        "building_confidence",
+        "respectful_dating_and_boundaries",
+        "handling_rejection",
+        "friendship"
+      ]
+    }
+  ],
+  "topics": [
+    {
+      "id": "starting_a_conversation",
+      "title": "Starting a conversation",
+      "keywords": ["start", "talk", "say", "hello", "hi", "message", "opener", "conversation", "first message"],
+      "tone": "encouraging",
+      "responses": [
+        {
+          "when": "The user is nervous about starting a respectful conversation",
+          "answer": "It’s normal to feel a little nervous. Try a simple, genuine question about something you both have in common.",
+          "tips": ["Keep it natural and respectful.", "Give the other person room to respond—or not."],
+          "followUp": "What do you already know you have in common?"
+        },
+        {
+          "when": "The user asks for a good opening line on a social or dating app",
+          "answer": "Skip the generic ‘hey’ and reference something specific from their profile, like a shared hobby, book, or photo location.",
+          "tips": ["Be authentic rather than overly slick.", "Ask an open-ended question that allows more than a yes/no answer."],
+          "followUp": "What is one interesting thing you noticed on their profile?"
+        }
+      ]
+    },
+    {
+      "id": "building_confidence",
+      "title": "Building confidence",
+      "keywords": ["confident", "confidence", "shy", "nervous", "insecure", "self-doubt", "awkward", "social"],
+      "tone": "warm",
+      "responses": [
+        {
+          "when": "The user feels shy or awkward in social settings",
+          "answer": "Confidence isn't about being the loudest person in the room; it's about being comfortable in your own skin. Take a deep breath and focus on listening.",
+          "tips": ["Smile and maintain open body language.", "Remember that most people are too focused on themselves to judge you."],
+          "followUp": "What is one thing you actually like about yourself?"
+        }
+      ]
+    },
+    {
+      "id": "respectful_dating_and_boundaries",
+      "title": "Respectful dating & boundaries",
+      "keywords": ["respect", "boundaries", "boundary", "consent", "dating", "pace", "pressure", "comfortable", "no"],
+      "tone": "reassuring",
+      "responses": [
+        {
+          "when": "The user wants to know what respect looks like in a relationship",
+          "answer": "Respect means valuing each other's opinions, time, personal space, and physical and emotional boundaries at all times.",
+          "tips": ["Listen without interrupting.", "Never pressure someone to change or do something they aren't comfortable with."],
+          "followUp": "What boundary is most important to you?"
+        },
+        {
+          "when": "The user is unsure how to set a personal boundary",
+          "answer": "Be clear, kind, and direct. You can say something like, ‘I'm not comfortable with that,’ or ‘I need to take things a bit slower.’",
+          "tips": ["You don't have to apologize for protecting your peace.", "A healthy person will respect your boundary immediately."],
+          "followUp": "Is there a situation where you feel your boundaries are being pushed?"
+        }
+      ]
+    },
+    {
+      "id": "handling_rejection",
+      "title": "Handling rejection",
+      "keywords": ["rejection", "rejected", "ghosted", "ghosting", "said no", "hurt", "sad", "left on read", "ignored"],
+      "tone": "calm",
+      "responses": [
+        {
+          "when": "The user is dealing with rejection or a ‘no’",
+          "answer": "Rejection stings, but it's a normal part of life and dating. It's a reflection of compatibility, not your worth as a person.",
+          "tips": ["Allow yourself to feel disappointed without self-blame.", "Remember that not every connection is meant to work out."],
+          "followUp": "What helps you bounce back when things don't go your way?"
+        },
+        {
+          "when": "The user was ghosted or left on read",
+          "answer": "Being ghosted says more about the other person's communication style than about you. Try not to internalize it.",
+          "tips": ["Don't chase someone who isn't investing effort.", "Redirect your energy toward people who value your time."],
+          "followUp": "Would you want to date someone who can't communicate clearly anyway?"
+        }
+      ]
+    },
+    {
+      "id": "friendship",
+      "title": "Friendship",
+      "keywords": ["friend", "friendship", "lonely", "make friends", "social circle", "buddy", "distant", "group activity"],
+      "tone": "warm",
+      "responses": [
+        {
+          "when": "The user is looking to make new friends",
+          "answer": "Building genuine friendships takes time. Focus on shared activities like clubs, hobbies, or volunteering where you see the same people regularly.",
+          "tips": ["Be a good listener first.", "Don't be afraid to take the initiative to say hello."],
+          "followUp": "What is a group activity or hobby you enjoy doing?"
+        },
+        {
+          "when": "The user feels distant from an existing friend",
+          "answer": "People get busy with life, but true friendships can weather quiet patches. Send a low-pressure text just checking in.",
+          "tips": ["Avoid keeping score of who texts first.", "Propose a casual, low-stress hangout."],
+          "followUp": "When was the last time you two caught up?"
+        }
+      ]
+    }
+  ],
+  "fallbacks": [
+    "I don't have a prepared answer for that yet. Try asking about starting conversations, confidence, respectful dating and boundaries, rejection, or friendship.",
+    "I’m still building my prepared guidance. Which part would you like help with?"
+  ],
+  "safetyResponses": {
+    "crisis": "I hear that you're going through a really difficult time right now, but please know you are not alone. Please reach out to a trusted family member, counselor, or local emergency service or crisis helpline immediately.",
+    "abuse": "Your safety and well-being come first. Please talk to a trusted person, counselor, or local support service right away so you can get help and protection."
+  }
+}

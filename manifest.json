@@ -1,0 +1,25 @@
+{
+  "project": "SparkCircleAI",
+  "version": "1.1.0",
+  "structure": {
+    "modelsDir": "USCHighPack/",
+    "voicesDir": "voices/maya/",
+    "dataDir": "data/"
+  },
+  "assets": {
+    "primaryModel": {
+      "name": "Maya",
+      "file": "USCHighPack/model.obj",
+      "diffuseTexture": "USCHighPack/texture_diffuse.png",
+      "normalTexture": "USCHighPack/texture_normal.png",
+      "specularTexture": "USCHighPack/texture_specular.png",
+      "notes": "The frontend uses OBJLoader and diffuse texture when files are present. A procedural Three.js avatar is shown otherwise."
+    },
+    "audioTranscriptMapping": {
+      "greeting": "voices/maya/greeting.mp3",
+      "encouragement": "voices/maya/encouragement.mp3",
+      "notes": "Optional. Browser speech synthesis is the default and does not require uploaded audio."
+    },
+    "content": "data/content.json"
+  }
+}
