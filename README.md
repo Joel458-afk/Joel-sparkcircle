@@ -1,28 +1,23 @@
-# SparkCircle — Static 3D Companion MVP
+# SparkCircle — local-first seven-persona prototype
 
-A static, client-side social-confidence guidance demo. It uses prepared responses from `data/content.json`, Three.js for the 3D stage, and browser-native speech features. There is no AI API, backend, account system, or server-side chat storage.
+A static web app shell for seven regional personas, teen/adult experience selection, prepared social guidance, browser speech, and optional in-browser text generation. It uses no paid AI API, API key, application backend, or server-side chat storage.
 
-## Run and publish
+## Run / publish
+Serve the repository root over HTTPS (GitHub Pages/Netlify) or a local static server. `file://` is not supported because ES modules and JSON/assets need HTTP. Three.js and the optional WebLLM package currently load from public CDNs; an internet connection is required. GitHub Pages must be enabled in repository settings (branch `main`, root).
 
-- Open the deployed GitHub Pages URL over HTTPS, or serve this repository with any static web server. `index.html` loads `data/content.json` with `fetch`, so opening it directly as a `file://` URL may not work.
-- GitHub Pages can serve the site, but this repository's Pages setting must be enabled in **Settings → Pages** (Deploy from a branch, `main`, root).
-- Three.js and Tailwind are loaded from public CDNs, so the first load needs an internet connection.
+## Local language model
+The **Enable local AI** button lazily imports WebLLM and requests `Qwen2-0.5B-Instruct-q4f16_1-MLC`. The model is downloaded from its configured public model source and cached by the browser; it is not included in this repository. Approximate downloads vary by model build and cache; expect a large download (roughly 1 GB, not guaranteed). Users must explicitly opt in, have a compatible WebGPU-enabled browser/device, sufficient GPU/browser memory, and network access. Unsupported devices get prepared-topic matching instead. Test the exact model ID against the current WebLLM model catalog before shipping; model availability can change.
 
-## 3D model asset
+Inference runs in the browser after the weights load; there is no app API endpoint. However, the page still fetches JS/CDN libraries and model files from third parties. This is not a fully offline application until those dependencies and model files are self-hosted. A tiny model is less capable than Gemini-class services, may make mistakes, and is not guaranteed to handle every prompt safely. Safety keyword checks are limited heuristics, not dependable crisis detection. A qualified review, clear user reporting path, rate limits/abuse controls, and robust age verification/moderation are required before public dating-app deployment.
 
-The viewer tries to load these relative paths:
+## Age-separated experience
+Users explicitly select teen (13–17) or adult (18+) mode in the UI. The mode changes the local model instruction, but this client-side selector is **not age verification or an enforceable security boundary**. Do not use this prototype to mix minors with adult dating features. A production teen product needs legally reviewed age assurance, privacy/data-minimization design, safeguarding and moderation, and truly separate product/data access controls. Adult mode remains non-explicit and consent-centered in this prototype.
 
-- `USCHighPack/model.obj`
-- `USCHighPack/texture_diffuse.png`
+## Personas and 3D assets
+`data/personas.js` contains seven configurable names, regions, voice locales/pitch preferences, and per-persona model paths. Actual character model assets were not attached to the repository in this task, so each persona shows a neutral placeholder until the licensed model is provided at its configured path. Put compatible `.obj` files and referenced texture/material assets under `models/`; the loader currently supports OBJ and applies a neutral material. For production-quality characters, prefer optimized GLB with documented license, rig/animation, facial morph targets, and a loading/error fallback. Regional identity is a setting, not a stereotype; avoid accent imitation and assumptions about personality.
 
-If either is not present or fails to load, the app renders a procedural Three.js character instead. Put the extracted model files at those paths in the repository to use the supplied model. The normal and specular maps are listed in `manifest.json` but are not currently applied. Large texture files may exceed GitHub's file-size limits; consider resizing/compressing them before committing.
+## Voice limitations
+Speech synthesis uses the system/browser voices and asks for the persona's English locale (`en-US`, `en-GB`, `en-IN`, or `en-AU`) plus a modest pitch adjustment. Web Speech does not standardize a voice's gender, and voice inventory differs by operating system. The app cannot guarantee a feminine voice on every device. Speech recognition support also varies and may use browser/vendor services; disclose this and provide typing as the alternative.
 
-The chat has no generative AI: it picks matching, author-prepared topic responses from `data/content.json`. Unmatched topics use the prepared fallback. Browser speech recognition support varies by browser, and may require microphone permission and HTTPS. Speech synthesis uses voices installed/provided by the browser/operating system.
-
-## Content editing
-
-Edit `data/content.json` to add companions, keywords, topics, approved responses, tips, and follow-up prompts. A companion's `approvedTopics` controls which topics are available to that character. Avoid collecting sensitive personal information; chat content is currently only held in page memory.
-
-## Safety note
-
-SparkCircle is a static demo, not a professional counseling or emergency service. Keep guidance age-appropriate, respectful, and transparent about its prepared/non-AI nature.
+## Content and behavior
+Prepared topic guidance lives in `index.html` for this prototype. The local model receives the conversation prompt plus topic guidance. Chat is held in page memory only and is not persisted by the app. Add reviewed content, reporting, consent UX, privacy policy, and safeguarding controls before launch. The site discloses that companions are AI, not real people.

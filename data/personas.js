@@ -1,0 +1,9 @@
+export const PERSONAS = [
+  { id: 'maya', name: 'Maya', initial: 'M', region: 'North America', role: 'Warm, reassuring conversation coach', greeting: 'Hey, I’m Maya. I’m glad you’re here. What would you like to chat about today?', locale: 'en-US', pitch: 1.12, color: '#8b5cf6', model: 'models/maya.obj' },
+  { id: 'sofia', name: 'Sofia', initial: 'S', region: 'Latin America', role: 'Encouraging, expressive conversation coach', greeting: 'Hola, I’m Sofia. What would you like to work on together?', locale: 'en-US', pitch: 1.16, color: '#ec4899', model: 'models/sofia.obj' },
+  { id: 'amara', name: 'Amara', initial: 'A', region: 'Africa', role: 'Thoughtful, supportive conversation coach', greeting: 'Hi, I’m Amara. I’m here to help you think things through.', locale: 'en-GB', pitch: 1.10, color: '#f97316', model: 'models/amara.obj' },
+  { id: 'priya', name: 'Priya', initial: 'P', region: 'South Asia', role: 'Practical, warm conversation coach', greeting: 'Hi, I’m Priya. What would you like a little support with today?', locale: 'en-IN', pitch: 1.14, color: '#eab308', model: 'models/priya.obj' },
+  { id: 'mei', name: 'Mei', initial: 'M', region: 'East Asia', role: 'Calm, curious conversation coach', greeting: 'Hi, I’m Mei. Tell me what you’ve been thinking about.', locale: 'en-US', pitch: 1.12, color: '#06b6d4', model: 'models/mei.obj' },
+  { id: 'freja', name: 'Freja', initial: 'F', region: 'Europe', role: 'Clear, friendly conversation coach', greeting: 'Hi, I’m Freja. What would you like to talk through?', locale: 'en-GB', pitch: 1.13, color: '#3b82f6', model: 'models/freja.obj' },
+  { id: 'zara', name: 'Zara', initial: 'Z', region: 'Oceania', role: 'Relaxed, positive conversation coach', greeting: 'Hey, I’m Zara. What’s on your mind?', locale: 'en-AU', pitch: 1.15, color: '#10b981', model: 'models/zara.obj' }
+];
