@@ -1,41 +1,108 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>SparkCircle — AI Companion</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#09090f">
+  <title>SparkCircle — Meet your AI companion</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#09090b;color:#fafafa;font-family:ui-sans-serif,system-ui}
-    .message{animation:in .18s ease-out}@keyframes in{from{opacity:0;transform:translateY(5px)}}
-    .avatar{position:relative;width:min(240px,55vw);aspect-ratio:1;border-radius:999px;overflow:hidden;background:linear-gradient(145deg,#1e1b4b,#be185d);box-shadow:0 20px 60px #0008}
-    .face{position:absolute;left:50%;top:24%;width:52%;height:58%;transform:translateX(-50%);border-radius:48% 48% 46% 46%;background:#d69b72}.hair{position:absolute;left:21%;top:12%;width:58%;height:47%;border-radius:50% 50% 42% 42%;background:#17131b}.neck{position:absolute;left:43%;top:72%;width:14%;height:20%;background:#b97e59}.body{position:absolute;left:24%;bottom:-18%;width:52%;height:46%;border-radius:50% 50% 0 0;background:linear-gradient(135deg,#8b5cf6,#db2777)}
-    .eye{position:absolute;top:44%;width:9%;height:5%;border-radius:50%;background:#241a18;animation:blink 5s infinite}.eye.left{left:35%}.eye.right{right:35%}@keyframes blink{0%,96%,100%{transform:scaleY(1)}98%{transform:scaleY(.08)}}
-    .brow{position:absolute;top:38%;width:16%;height:4%;border-top:3px solid #4a3025;border-radius:50%}.brow.left{left:31%;transform:rotate(-5deg)}.brow.right{right:31%;transform:rotate(5deg)}
-    .nose{position:absolute;left:48%;top:51%;width:4%;height:12%;border-left:2px solid #ad7957;border-bottom:2px solid #ad7957;border-radius:0 0 0 60%}.mouth{position:absolute;left:39%;top:68%;width:22%;height:7%;border-radius:20% 20% 50% 50%;background:#7a3041;border:2px solid #8e4952}
-    .avatar.listening{box-shadow:0 0 0 6px #22c55e35,0 20px 60px #0008}.avatar.speaking{animation:talk 1s ease-in-out infinite}@keyframes talk{50%{transform:scale(1.015)}}.avatar.speaking .mouth{animation:mouth .28s ease-in-out infinite alternate}@keyframes mouth{to{height:13%;border-radius:50%;background:#351318}}
+    :root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    *{box-sizing:border-box}body{margin:0;background:#09090f;color:#f4f4f5}
+    button,textarea{font:inherit}button{transition:background-color .18s,border-color .18s,transform .18s}
+    .bubble-in{animation:appear .24s ease-out both}@keyframes appear{from{opacity:0;transform:translateY(8px)}}
+    .stage-bg{background:radial-gradient(ellipse at 50% 35%,rgba(139,92,246,.2),transparent 58%),linear-gradient(160deg,#12111d,#0c0b12 72%)}
+    .avatar-wrap{width:min(310px,62vw);aspect-ratio:1;position:relative;filter:drop-shadow(0 24px 48px rgba(0,0,0,.4));transition:transform .35s}
+    .avatar-wrap.listening{animation:listen 1.8s ease-in-out infinite}.avatar-wrap.speaking{animation:bodyTalk .7s ease-in-out infinite alternate}
+    @keyframes listen{50%{transform:translateY(-5px) scale(1.015)}}@keyframes bodyTalk{to{transform:translateY(-3px) scale(1.012)}}
+    .mouth{transform-origin:50% 50%}.speaking .mouth{animation:mouthTalk .19s ease-in-out infinite alternate}@keyframes mouthTalk{to{transform:scaleY(1.75) scaleX(.85)}}
+    .eye-shape{transform-box:fill-box;transform-origin:center;animation:blink 5s infinite}@keyframes blink{0%,45%,48%,96%,100%{transform:scaleY(1)}46%,97%{transform:scaleY(.08)}}
+    .orb{animation:orb 5s ease-in-out infinite}@keyframes orb{50%{transform:translateY(-8px);opacity:.7}}
+    .toggle-on{background:#7c3aed!important}.scroll-area{scrollbar-width:thin;scrollbar-color:#3f3f46 transparent}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
   </style>
 </head>
-<body class="h-screen overflow-hidden">
-<main class="flex h-full">
- <aside id="sidebar" class="absolute z-30 h-full w-72 -translate-x-full border-r border-zinc-800 bg-zinc-950 p-4 transition md:relative md:translate-x-0">
-  <div class="mb-5 flex items-center justify-between"><h1 class="text-lg font-bold">SparkCircle</h1><button id="closeSide" class="md:hidden">✕</button></div>
-  <p class="mb-3 text-xs font-bold uppercase tracking-widest text-zinc-500">Companions</p><div id="characters" class="space-y-2"></div>
- </aside>
- <section class="flex min-w-0 flex-1 flex-col">
-  <header class="flex h-16 items-center gap-3 border-b border-zinc-800 px-4"><button id="openSide" class="md:hidden">☰</button><div id="miniAvatar" class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-pink-600 font-bold">M</div><div><h2 id="headerName" class="font-semibold">Maya</h2><p id="connection" class="text-xs text-emerald-400">● AI companion</p></div><button id="clear" class="ml-auto rounded-lg border border-zinc-800 px-3 py-2 text-xs text-zinc-400">Clear</button></header>
-  <div class="flex min-h-0 flex-1"><div id="avatarPanel" class="hidden w-[40%] items-center justify-center border-r border-zinc-800 lg:flex"><div id="mainAvatar" class="avatar"><div class="hair"></div><div class="body"></div><div class="neck"></div><div class="face"><div class="brow left"></div><div class="brow right"></div><div class="eye left"></div><div class="eye right"></div><div class="nose"></div><div class="mouth"></div></div></div></div>
-  <div class="flex min-w-0 flex-1 flex-col"><div id="messages" class="flex-1 overflow-y-auto px-4 py-5" aria-live="polite"></div><div class="border-t border-zinc-800 p-3"><div class="mx-auto flex max-w-3xl items-end gap-2"><button id="mic" class="rounded-xl border border-zinc-800 p-3" aria-label="Voice input">🎙️</button><textarea id="input" rows="1" class="max-h-32 min-h-[48px] flex-1 resize-none rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 outline-none focus:border-violet-500" placeholder="Write a message..."></textarea><button id="send" class="rounded-xl bg-violet-600 p-3">➤</button></div><p class="mt-2 text-center text-xs text-zinc-500">AI companion · No paid API or backend required</p></div></div></div>
- </section>
-</main>
+<body class="h-[100dvh] overflow-hidden">
+  <main class="mx-auto flex h-full max-w-[1500px]">
+    <aside id="sidebar" class="absolute inset-y-0 left-0 z-30 flex w-[290px] -translate-x-full flex-col border-r border-white/[.07] bg-[#0b0a10] p-5 transition-transform duration-300 md:relative md:translate-x-0">
+      <div class="mb-8 flex items-center justify-between"><a href="#" class="flex items-center gap-3 font-semibold tracking-tight"><span class="grid h-9 w-9 place-items-center rounded-xl bg-violet-500 text-lg">✳</span>SparkCircle</a><button id="closeSidebar" class="rounded-lg px-2 py-1 text-zinc-400 hover:bg-white/5 md:hidden" aria-label="Close menu">✕</button></div>
+      <div class="mb-3 flex items-center justify-between"><span class="text-[11px] font-semibold uppercase tracking-[.18em] text-zinc-500">Your companions</span><span class="text-xs text-zinc-600">4</span></div>
+      <div id="characterList" class="space-y-2"></div>
+      <div class="mt-auto rounded-2xl border border-white/[.07] bg-white/[.025] p-4"><div class="mb-2 flex items-center gap-2 text-xs font-medium text-emerald-300"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>Free browser demo</div><p class="text-xs leading-relaxed text-zinc-500">Replies are sample prompts. Voice uses your browser’s built-in speech features.</p></div>
+    </aside>
+
+    <section class="flex min-w-0 flex-1 flex-col">
+      <header class="flex h-[68px] shrink-0 items-center gap-3 border-b border-white/[.07] px-4 sm:px-6">
+        <button id="openSidebar" class="rounded-xl p-2 text-zinc-400 hover:bg-white/5 md:hidden" aria-label="Open companions">☰</button>
+        <div id="smallAvatar" class="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-600 text-sm font-bold">M</div>
+        <div class="min-w-0"><h1 id="activeName" class="font-semibold">Maya</h1><p class="flex items-center gap-1.5 text-xs text-zinc-500"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>AI companion · Demo</p></div>
+        <div class="ml-auto flex items-center gap-2"><button id="voiceToggle" class="rounded-xl border border-white/10 px-3 py-2 text-xs text-zinc-300 hover:bg-white/5" aria-pressed="true">🔊 <span class="hidden sm:inline">Voice on</span></button><button id="clearButton" class="rounded-xl border border-white/10 px-3 py-2 text-xs text-zinc-400 hover:bg-white/5">Clear chat</button></div>
+      </header>
+
+      <div class="flex min-h-0 flex-1 flex-col lg:flex-row">
+        <section class="stage-bg relative flex min-h-[220px] flex-[.92] flex-col items-center justify-center overflow-hidden border-b border-white/[.06] px-4 py-4 lg:min-h-0 lg:border-b-0 lg:border-r" aria-label="Animated companion">
+          <div class="orb absolute left-[16%] top-[20%] h-2 w-2 rounded-full bg-violet-300/70 blur-[1px]"></div><div class="orb absolute right-[18%] top-[31%] h-1.5 w-1.5 rounded-full bg-fuchsia-300/70 blur-[1px]" style="animation-delay:1.3s"></div><div class="orb absolute bottom-[23%] left-[25%] h-1 w-1 rounded-full bg-sky-200/60" style="animation-delay:2.1s"></div>
+          <div id="avatar" class="avatar-wrap z-10" aria-label="Animated illustrated avatar">
+            <svg viewBox="0 0 320 320" class="h-full w-full" role="img" aria-label="Illustrated companion Maya">
+              <defs><linearGradient id="halo" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a78bfa"/><stop offset="1" stop-color="#ec4899"/></linearGradient><linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f3c5a5"/><stop offset="1" stop-color="#d99576"/></linearGradient><linearGradient id="shirt" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a78bfa"/><stop offset="1" stop-color="#db2777"/></linearGradient></defs>
+              <circle cx="160" cy="160" r="145" fill="url(#halo)" opacity=".15"/><circle cx="160" cy="160" r="128" fill="#21182f" stroke="url(#halo)" stroke-opacity=".32" stroke-width="2"/>
+              <path d="M77 302c5-56 37-81 83-81s78 25 83 81" fill="url(#shirt)"/><path d="M135 211h50v48c-13 18-37 18-50 0z" fill="#c58469"/>
+              <path d="M91 141c-8-50 17-92 68-96 48-4 77 32 68 91l-9 48H101z" fill="#261923"/>
+              <ellipse cx="160" cy="151" rx="68" ry="78" fill="url(#skin)"/>
+              <path d="M91 131c2-62 29-91 74-88 38 3 62 29 66 66-20-4-37-15-47-33-19 23-49 37-93 39z" fill="#261923"/><path d="M94 111c18-44 48-63 87-58" fill="none" stroke="#49303b" stroke-width="10" stroke-linecap="round" opacity=".6"/>
+              <path d="M117 142q14-10 27 0" fill="none" stroke="#714b3e" stroke-width="3" stroke-linecap="round"/><path d="M176 142q14-10 27 0" fill="none" stroke="#714b3e" stroke-width="3" stroke-linecap="round"/>
+              <ellipse class="eye-shape" cx="130" cy="158" rx="5.5" ry="7" fill="#2d2020"/><ellipse class="eye-shape" cx="190" cy="158" rx="5.5" ry="7" fill="#2d2020"/>
+              <circle cx="132" cy="156" r="1.7" fill="white"/><circle cx="192" cy="156" r="1.7" fill="white"/>
+              <path d="M159 162q-3 15 3 19" fill="none" stroke="#bd8068" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="119" cy="177" rx="11" ry="6" fill="#ec8d91" opacity=".2"/><ellipse cx="201" cy="177" rx="11" ry="6" fill="#ec8d91" opacity=".2"/>
+              <path class="mouth" d="M147 194q13 10 26 0" fill="none" stroke="#8d4551" stroke-width="4" stroke-linecap="round"/>
+              <path d="M92 123q-15 26-8 57" fill="none" stroke="#261923" stroke-width="15" stroke-linecap="round"/><path d="M228 121q15 24 8 55" fill="none" stroke="#261923" stroke-width="15" stroke-linecap="round"/>
+              <circle cx="99" cy="183" r="5" fill="#f5cb73"/><circle cx="221" cy="183" r="5" fill="#f5cb73"/>
+            </svg>
+          </div>
+          <div class="z-10 mt-2 text-center"><h2 id="stageName" class="text-lg font-semibold">Maya</h2><p id="stageRole" class="text-sm text-zinc-400">Warm & playful</p></div>
+          <div id="stateLabel" class="z-10 mt-3 inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/20 px-3 py-1.5 text-xs text-zinc-300"><span id="stateDot" class="h-1.5 w-1.5 rounded-full bg-zinc-500"></span><span id="stateText">Ready when you are</span></div>
+          <button id="startVoice" class="z-10 mt-3 inline-flex items-center gap-2 rounded-full bg-violet-500 px-4 py-2 text-sm font-medium shadow-lg shadow-violet-950/40 hover:bg-violet-400"><span>🎙️</span><span>Talk to me</span></button>
+          <p class="z-10 mt-2 text-[10px] text-zinc-600">Illustrated avatar · Not live video</p>
+        </section>
+
+        <section class="flex min-h-0 flex-[1.08] flex-col">
+          <div id="messages" class="scroll-area flex-1 overflow-y-auto px-4 py-5 sm:px-6" aria-live="polite" aria-label="Chat messages"></div>
+          <div class="border-t border-white/[.07] p-3 sm:p-4">
+            <div class="mx-auto flex max-w-3xl items-end gap-2 rounded-2xl border border-white/10 bg-[#111018] p-2 focus-within:border-violet-500/60">
+              <textarea id="messageInput" rows="1" class="max-h-32 min-h-10 flex-1 resize-none bg-transparent px-2 py-2 text-sm outline-none placeholder:text-zinc-600" placeholder="Say something to Maya…" aria-label="Message"></textarea>
+              <button id="micButton" class="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-zinc-300 hover:bg-white/5" aria-label="Start voice recognition" title="Speak">🎙️</button>
+              <button id="sendButton" class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-violet-600 font-bold hover:bg-violet-500" aria-label="Send message">↑</button>
+            </div>
+            <p id="footnote" class="mx-auto mt-2 max-w-3xl text-center text-[11px] text-zinc-600">Demo replies are scripted. Speech features depend on your browser; microphone access may require HTTPS.</p>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
 <script>
-const people=[{id:'maya',name:'Maya',role:'Warm & playful',initial:'M',color:'from-violet-500 to-pink-600',tone:'1.12',greeting:'Hey! I’m Maya. I’m excited to chat with you. What’s on your mind?'},{id:'leo',name:'Leo',role:'Calm & thoughtful',initial:'L',color:'from-sky-500 to-blue-700',tone:'0.95',greeting:'Hi, I’m Leo. We can talk about anything or simply take a moment to unwind.'},{id:'sofia',name:'Sofia',role:'Creative & curious',initial:'S',color:'from-amber-400 to-orange-600',tone:'1.15',greeting:'Hello! I’m Sofia. Tell me a story, an idea, or something that made you smile today.'},{id:'jules',name:'Jules',role:'Confident & fun',initial:'J',color:'from-emerald-400 to-teal-700',tone:'1',greeting:'Hey, I’m Jules. Ready for a great conversation?'}];
-let active=people[0];const chars=document.querySelector('#characters'),messages=document.querySelector('#messages'),input=document.querySelector('#input'),avatar=document.querySelector('#mainAvatar');
-function render(){chars.innerHTML=people.map(p=>`<button data-id="${p.id}" class="flex w-full items-center gap-3 rounded-xl border p-3 text-left ${p.id===active.id?'border-violet-500 bg-violet-500/10':'border-zinc-800'}"><div class="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br ${p.color} font-bold">${p.initial}</div><div><b class="block text-sm">${p.name}</b><span class="text-xs text-zinc-500">${p.role}</span></div></button>`).join('');chars.querySelectorAll('button').forEach(b=>b.onclick=()=>select(b.dataset.id))}function select(id){active=people.find(p=>p.id===id);document.querySelector('#headerName').textContent=active.name;const mini=document.querySelector('#miniAvatar');mini.textContent=active.initial;mini.className=`flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br ${active.color} font-bold`;render();messages.innerHTML='';add(active.greeting,'assistant');closeSide()} 
-function add(text,role){const row=document.createElement('div');row.className=`message mb-4 flex ${role==='user'?'justify-end':'justify-start'}`;row.innerHTML=`<div class="max-w-[82%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${role==='user'?'rounded-br-md bg-violet-600':'rounded-bl-md bg-zinc-900'}"></div>`;row.firstElementChild.textContent=text;messages.appendChild(row);messages.scrollTop=messages.scrollHeight}
-function reply(s){const t=s.toLowerCase();if(/^(hi|hello|hey)/.test(t))return `Hey! It’s lovely to hear from you. How are you doing today?`;if(/how (are|r) you/.test(t))return `I’m doing well, thanks for asking. I’m here and ready to listen—what’s new with you?`;if(/sad|lonely|bad|tired|stressed/.test(t))return `I’m sorry you’re feeling that way. You deserve kindness, especially from yourself. Would you like to tell me what’s been weighing on you?`;if(/dating|love|relationship/.test(t))return `Dating can be exciting and complicated. What qualities matter most to you in someone special?`;if(/thank/.test(t))return `You’re very welcome. I’m glad we’re talking!`;if(/bored|game|fun/.test(t))return `Let’s make it fun. Would you rather explore an imaginary place, tell a creative story, or play a quick word game?`;const a=['That’s interesting. Tell me a little more—I’m listening.','I’d love to understand that better. What was the most memorable part for you?','Thanks for sharing that with me. How does it make you feel?','There may be more than one way to see it. What would your ideal outcome look like?'];return a[Math.abs([...s].reduce((n,c)=>n+c.charCodeAt(0),0))%a.length]}
-function send(){const t=input.value.trim();if(!t)return;input.value='';add(t,'user');avatar.classList.remove('speaking');setTimeout(()=>{const r=reply(t);add(r,'assistant');speak(r)},550)}
-function speak(text){if(!('speechSynthesis'in window)){return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.pitch=Number(active.tone);u.rate=1;u.onstart=()=>avatar.classList.add('speaking');u.onend=()=>avatar.classList.remove('speaking');u.onerror=()=>avatar.classList.remove('speaking');speechSynthesis.speak(u)}
-document.querySelector('#send').onclick=send;input.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}};input.oninput=()=>{input.style.height='48px';input.style.height=Math.min(input.scrollHeight,128)+'px'};document.querySelector('#clear').onclick=()=>{messages.innerHTML='';add(active.greeting,'assistant')};
-const Rec=window.SpeechRecognition||window.webkitSpeechRecognition,mic=document.querySelector('#mic');if(Rec){const r=new Rec;r.continuous=false;r.interimResults=true;r.lang='en-US';mic.onclick=()=>r.start();r.onstart=()=>{mic.textContent='⏺️';avatar.classList.add('listening')};r.onresult=e=>{input.value=[...e.results].map(x=>x[0].transcript).join('');if(e.results[e.results.length-1].isFinal)send()};r.onend=()=>{mic.textContent='🎙️';avatar.classList.remove('listening')};r.onerror=e=>{mic.textContent='🎙️';avatar.classList.remove('listening');console.warn(e.error)}}else{mic.disabled=true;mic.title='Speech recognition unavailable'}
-const sidebar=document.querySelector('#sidebar');function openSide(){sidebar.classList.remove('-translate-x-full')}function closeSide(){sidebar.classList.add('-translate-x-full')}document.querySelector('#openSide').onclick=openSide;document.querySelector('#closeSide').onclick=closeSide;render();select('maya');
-</script></body></html>
+  const companions=[
+    {id:'maya',name:'Maya',role:'Warm & playful',initial:'M',gradient:'from-violet-400 to-fuchsia-600',pitch:1.12,greeting:'Hey! I’m Maya. I’m glad you’re here. What’s something you’d like to talk about?',color:'#c084fc'},
+    {id:'leo',name:'Leo',role:'Calm & thoughtful',initial:'L',gradient:'from-sky-400 to-blue-600',pitch:.92,greeting:'Hi, I’m Leo. We can talk about what’s on your mind, or just take a moment to unwind.',color:'#38bdf8'},
+    {id:'sofia',name:'Sofia',role:'Creative & curious',initial:'S',gradient:'from-amber-300 to-orange-600',pitch:1.16,greeting:'Hello! I’m Sofia. Tell me an idea, a little story, or something that made you smile today.',color:'#fbbf24'},
+    {id:'jules',name:'Jules',role:'Confident & fun',initial:'J',gradient:'from-emerald-400 to-teal-700',pitch:1,greeting:'Hey, I’m Jules. Want to trade stories, play a word game, or just chat?',color:'#34d399'}
+  ];
+  let selected=companions[0],voiceEnabled=true,recognition=null,isRecognizing=false;
+  const $=s=>document.querySelector(s),list=$('#characterList'),messages=$('#messages'),input=$('#messageInput'),avatar=$('#avatar');
+  function renderPeople(){list.innerHTML=companions.map(p=>`<button data-id="${p.id}" class="person flex w-full items-center gap-3 rounded-xl border p-3 text-left ${p.id===selected.id?'border-violet-400/40 bg-violet-500/10':'border-transparent hover:border-white/[.07] hover:bg-white/[.035]'}"><span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br ${p.gradient} text-sm font-bold">${p.initial}</span><span><b class="block text-sm font-medium">${p.name}</b><span class="text-xs text-zinc-500">${p.role}</span></span></button>`).join('');list.querySelectorAll('button').forEach(b=>b.onclick=()=>choose(b.dataset.id))}
+  function choose(id){selected=companions.find(p=>p.id===id);$('#activeName').textContent=selected.name;$('#stageName').textContent=selected.name;$('#stageRole').textContent=selected.role;$('#smallAvatar').textContent=selected.initial;$('#smallAvatar').className=`grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br ${selected.gradient} text-sm font-bold`;document.querySelector('svg[role="img"]').setAttribute('aria-label',`Illustrated companion ${selected.name}`);renderPeople();messages.replaceChildren();appendMessage(selected.greeting,'assistant');closeMenu()}
+  function appendMessage(text,role){const row=document.createElement('div');row.className=`bubble-in mb-4 flex gap-2.5 ${role==='user'?'justify-end':'justify-start'}`;if(role==='assistant'){const badge=document.createElement('div');badge.className=`mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gradient-to-br ${selected.gradient} text-[10px] font-bold`;badge.textContent=selected.initial;row.appendChild(badge)}const bubble=document.createElement('div');bubble.className=`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-relaxed ${role==='user'?'rounded-br-md bg-violet-600 text-white':'rounded-bl-md border border-white/[.05] bg-[#17151e] text-zinc-200'}`;bubble.textContent=text;row.appendChild(bubble);messages.appendChild(row);messages.scrollTop=messages.scrollHeight}
+  function makeReply(text){const t=text.toLowerCase();if(/\b(hi|hello|hey)\b/.test(t))return `Hey! It’s lovely to hear from you. How has your day been?`;if(/how are you/.test(t))return `I’m here and ready to chat. Thanks for asking! What’s on your mind?`;if(/\b(sad|lonely|stressed|tired|upset)\b/.test(t))return `That sounds like a lot to carry. Would it help to tell me what’s been going on?`;if(/\b(dating|relationship|love|match)\b/.test(t))return `Relationships are personal and different for everyone. What do you value most in a connection?`;if(/\b(thank|thanks)\b/.test(t))return `You’re welcome. I’m glad you shared that with me.`;if(/\b(bored|game|fun)\b/.test(t))return `We could play a quick word association game, make up a story together, or talk about something you’re curious about. Which sounds fun?`;if(/\b(name|who are you)\b/.test(t))return `I’m ${selected.name}, your ${selected.role.toLowerCase()} AI companion in this demo.`;const replies=[`I hear you. What part of that feels most important to you?`,`That’s an interesting thought. What happened next?`,`Thanks for telling me. How did that feel for you?`,`I’d like to understand a little more—what would you hope happens next?`,`Let’s explore that together. What’s one detail you keep thinking about?`];let seed=0;for(const c of text)seed=(seed+c.charCodeAt(0))|0;return replies[Math.abs(seed)%replies.length]}
+  function setState(state,label){avatar.classList.toggle('listening',state==='listening');avatar.classList.toggle('speaking',state==='speaking');$('#stateText').textContent=label;$('#stateDot').className=`h-1.5 w-1.5 rounded-full ${state==='listening'?'bg-emerald-400':state==='speaking'?'bg-violet-400':'bg-zinc-500'}`}
+  function say(text){if(!voiceEnabled||!('speechSynthesis'in window))return;window.speechSynthesis.cancel();const utterance=new SpeechSynthesisUtterance(text);utterance.pitch=selected.pitch;utterance.rate=1;utterance.onstart=()=>setState('speaking',`${selected.name} is speaking`);utterance.onend=()=>setState('ready','Ready when you are');utterance.onerror=()=>setState('ready','Ready when you are');window.speechSynthesis.speak(utterance)}
+  function send(){const text=input.value.trim();if(!text)return;input.value='';input.style.height='40px';appendMessage(text,'user');setState('thinking',`${selected.name} is thinking`);setTimeout(()=>{const answer=makeReply(text);appendMessage(answer,'assistant');setState('ready','Ready when you are');say(answer)},500)}
+  $('#sendButton').onclick=send;input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});input.addEventListener('input',()=>{input.style.height='40px';input.style.height=Math.min(input.scrollHeight,128)+'px'});
+  $('#clearButton').onclick=()=>{window.speechSynthesis?.cancel();setState('ready','Ready when you are');messages.replaceChildren();appendMessage(selected.greeting,'assistant')};
+  $('#voiceToggle').onclick=()=>{voiceEnabled=!voiceEnabled;$('#voiceToggle').classList.toggle('toggle-on',voiceEnabled);$('#voiceToggle').setAttribute('aria-pressed',String(voiceEnabled));$('#voiceToggle').innerHTML=voiceEnabled?'🔊 <span class="hidden sm:inline">Voice on</span>':'🔇 <span class="hidden sm:inline">Voice off</span>';if(!voiceEnabled)window.speechSynthesis?.cancel()};
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  function startListening(){if(!SpeechRecognition){setState('ready','Speech recognition unavailable in this browser');return}if(isRecognizing){recognition.stop();return}recognition=new SpeechRecognition();recognition.lang='en-US';recognition.continuous=false;recognition.interimResults=true;recognition.onstart=()=>{isRecognizing=true;setState('listening','Listening… speak now')};recognition.onresult=e=>{input.value=Array.from(e.results).map(r=>r[0].transcript).join('');if(e.results[e.results.length-1].isFinal)send()};recognition.onerror=e=>{setState('ready',e.error==='not-allowed'?'Allow microphone access to use voice':'Could not hear that—try again')};recognition.onend=()=>{isRecognizing=false;if(avatar.classList.contains('listening'))setState('ready','Ready when you are')};try{recognition.start()}catch(e){setState('ready','Microphone is starting—try again in a moment')}}
+  $('#micButton').onclick=startListening;$('#startVoice').onclick=startListening;
+  const sidebar=$('#sidebar');function openMenu(){sidebar.classList.remove('-translate-x-full')}function closeMenu(){sidebar.classList.add('-translate-x-full')}$('#openSidebar').onclick=openMenu;$('#closeSidebar').onclick=closeMenu;
+  renderPeople();choose('maya');
+</script>
+</body>
+</html>
